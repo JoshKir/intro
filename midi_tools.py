@@ -13,7 +13,7 @@ def compute_pitch_histogram(filename):
 			pitch_counts[pc] += (note.end - note.start)
 	return pitch_counts			
 
-	def process_many (filename, n_jobs=-2, verbose=0):
-		pool = Paralle(n_jobs=n_jobs, verbos=verbose)
-		fx = delayed(compute_pitch_histogram)
-		return pool(fx(fn) for fn in filenames)
+def process_many (filenames, n_jobs=-2, verbose=0):
+	pool = Parallel(n_jobs=n_jobs, verbose=verbose)
+	fx = delayed(compute_pitch_histogram)
+	return pool(fx(fn) for fn in filenames)
