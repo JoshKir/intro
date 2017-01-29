@@ -7,18 +7,24 @@ import argparse
 
 
 def compute_pitch_histogram(filename):
-	midi = pretty_midi.PrettyMIDI(filename)
 	pitch_counts = {pc: 0 for pc in range(12)}
+	name = os.path.split(filename)[-1]
+	try:
+		midi = pretty_midi.PrettyMIDI(filename)
+		for inst in midi.instruments:
+			if inst.is_drum:
+				continue
+			for note in inst.notes:
+				pc = note.pitch % 12
+				pitch_counts[pc] += (note.end - note.start)
 
-	for inst in midi.instruments:
-		if inst.is_drum:
-			continue
-		for note in inst.notes:
-			pc = note.pitch % 12
-			pitch_counts[pc] += (note.end - note.start)
-	name = os.path.split(filename)[-1]		
-	return {'name': name, 
-			'pitches': pitch_counts}			
+	except IOError as derp:
+		print("woah buddy, {} died: {}".format(name, derp))
+		
+
+	finally:			
+		return {'name': name, 
+				'pitches': pitch_counts}			
 
 def process_many (filenames, n_jobs, verbose):
 	pool = Parallel(n_jobs=n_jobs, verbose=verbose)
